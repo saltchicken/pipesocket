@@ -6,11 +6,11 @@ from loguru import logger
 
 
 class Client():
-    def __init__(self, host_ip):
+    def __init__(self, host_ip, host_port):
         if host_ip == 'localhost':
-            self.uri = "ws://localhost:8765"
+            self.uri = f"ws://localhost:{str(host_port)}"
         else:
-            self.uri = f"ws://{host_ip}:8765"
+            self.uri = f"ws://{host_ip}:{str(host_port)}"
 
     async def send_routine(self, ws):
         # TODO: How can I properly break this loop?
@@ -74,14 +74,14 @@ class Client():
 
 
 class Server():
-    def __init__(self, host_ip):
+    def __init__(self, host_ip, host_port):
         self.connected_clients = set()
         if host_ip == 'localhost':
             self.host = 'localhost'
-            self.port = 8765
+            self.port = host_port
         else:
             self.host = '0.0.0.0'
-            self.port = 8765
+            self.port = host_port
 
     async def handle_client(self, websocket, path):
         logger.debug(f"{path} connected")
