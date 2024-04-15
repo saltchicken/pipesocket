@@ -38,14 +38,14 @@ class BetterServer(Server):
     
     async def process_input(self, input):
         # return super().process_input(input)
-        logger.debug(f"Client received: {input}")
+        # logger.debug(f"Client received: {input}")
         self.receive_q.put(input)
         return True
 
     async def send(self):
         try:
             message = self.send_q.get_nowait()
-            logger.debug(message)
+            # logger.debug(message)
             return message
         except queue.Empty:
             # logger.debug("Queue was empty")
