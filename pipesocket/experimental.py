@@ -4,7 +4,7 @@ from loguru import logger
 
 from .classes import Server, Client
 
-class Controller():
+class PipeSocket():
     def __init__(self, server_bool = False):
         self._send_q = multiprocessing.Queue()
         self._receive_q = multiprocessing.Queue()
