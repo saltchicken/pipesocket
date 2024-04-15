@@ -24,11 +24,6 @@ class Client():
                 logger.warning('Connection was already closed. Breaking')
                 break
 
-    # async def get_user_input(self):
-    #     loop = asyncio.get_event_loop()
-    #     user_input = await loop.run_in_executor(None, input, "Enter something: ")
-    #     return user_input
-
     async def receive_routine(self, ws):
         try:
             while True:
