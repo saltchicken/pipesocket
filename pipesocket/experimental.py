@@ -68,7 +68,7 @@ class PipeSocket():
         try:
             dump = self._receive_q.get_nowait()
             message = JSONMessage(dump=dump)
-            return message
+            return self.process_message(message)
         except queue.Empty:
             return None
         
@@ -84,10 +84,10 @@ class PipeSocket():
         system_message = SystemMessage(message=message)
         self._send_q.put(system_message.dump)
 
-    def receive_system_message(self):
-        dump = self.get()
-        system_message = SystemMessage(dump=dump)
-        print(system_message)
+    # def receive_system_message(self):
+    #     dump = self.get()
+    #     system_message = SystemMessage(dump=dump)
+    #     print(system_message)
     
     def start_server(self):
         self.server = BetterServer(self._send_q, self._receive_q)
