@@ -80,6 +80,20 @@ class PipeSocket():
     def put_system_message(self, message):
         system_message = SystemMessage(message=message)
         self._send_q.put(system_message.dump)
+
+    def receive_stream_message(self):
+        system_message = SystemMessage(message='stream start')
+        self._send_q.put(system_message.dump)
+        keepReceiving = True
+        while keepReceiving:
+            dump = self._receive_q.get()
+            message = JSONMessage(dump=dump)
+            logger.debug(f'received: {message}')
+            if message.type == 'system' and message.message == 'stream stop':
+                keepReceiving = False
+        logger.debug('Receive stream ended')
+
+
     
     def start_server(self):
         self.server = BetterServer(self._send_q, self._receive_q)
