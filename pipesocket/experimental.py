@@ -30,9 +30,10 @@ class Message(JSONMessage):
     type: str = 'message'
 
 class PipeSocket():
-    def __init__(self, server_bool = False):
+    def __init__(self, server_bool = False, host_ip = 'localhost'):
         self._send_q = multiprocessing.Queue()
         self._receive_q = multiprocessing.Queue()
+        self.host_ip = host_ip
         if server_bool:
             self._process = multiprocessing.Process(target=self.start_server)
         else:
@@ -96,17 +97,17 @@ class PipeSocket():
 
     
     def start_server(self):
-        self.server = BetterServer(self._send_q, self._receive_q)
+        self.server = BetterServer(self.host_ip, self._send_q, self._receive_q)
         self.server.run()
 
     def start_client(self):
-        self.client = BetterClient(self._send_q, self._receive_q)
+        self.client = BetterClient(self.host_ip, self._send_q, self._receive_q)
         self.client.run()
 
 
 class BetterServer(Server):
-    def __init__(self, send_q, receive_q):
-        super().__init__()
+    def __init__(self, host_ip, send_q, receive_q):
+        super().__init__(host_ip)
         self.send_q = send_q
         self.receive_q = receive_q
     
@@ -122,8 +123,8 @@ class BetterServer(Server):
             await asyncio.sleep(0.1)
 
 class BetterClient(Client):
-    def __init__(self, send_q, receive_q):
-        super().__init__()
+    def __init__(self, host_ip, send_q, receive_q):
+        super().__init__(host_ip)
         self.send_q = send_q
         self.receive_q = receive_q
 

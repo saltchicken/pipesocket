@@ -6,8 +6,11 @@ from loguru import logger
 
 
 class Client():
-    def __init__(self):
-        pass
+    def __init__(self, host_ip):
+        if host_ip == 'localhost':
+            self.uri = "ws://localhost:8765"
+        else:
+            self.uri = f"ws://{host_ip}:8765"
 
     async def send_routine(self, ws):
         # TODO: How can I properly break this loop?
@@ -56,8 +59,7 @@ class Client():
 
 
     async def main(self):
-        uri = "ws://localhost:8765"
-        async with websockets.connect(uri) as websocket:
+        async with websockets.connect(self.uri) as websocket:
             # send_task = asyncio.create_task(send_routine(websocket))
             task = asyncio.create_task(self.receive_routine(websocket))
             send_task = self.send_routine(websocket)
@@ -72,8 +74,14 @@ class Client():
 
 
 class Server():
-    def __init__(self):
+    def __init__(self, host_ip):
         self.connected_clients = set()
+        if host_ip == 'localhost':
+            self.host = 'localhost'
+            self.port = 8765
+        else:
+            self.host = '0.0.0.0'
+            self.port = 8765
 
     async def handle_client(self, websocket, path):
         logger.debug(f"{path} connected")
@@ -124,7 +132,7 @@ class Server():
         logger.debug(input)
 
     async def main(self):
-        async with websockets.serve(self.handle_client, "localhost", 8765):
+        async with websockets.serve(self.handle_client, self.host, self.port):
             # asyncio.create_task(send_routine())
             # await asyncio.Future()
             task = self.send_routine()
