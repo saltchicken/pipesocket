@@ -2,7 +2,7 @@ import asyncio
 import multiprocessing, queue, asyncio
 from loguru import logger
 
-from classes import Server, Client
+from .classes import Server, Client
 
 class Controller():
     def __init__(self, server_bool = False):
