@@ -21,6 +21,13 @@ class PipeSocket():
         message = self._receive_q.get()
         return message
     
+    def get_nowait(self):
+        try:
+            message = self._receive_q.get_nowait()
+            return message
+        except queue.Empty:
+            return None
+    
     def start_server(self):
         self.server = BetterServer(self._send_q, self._receive_q)
         self.server.run()
