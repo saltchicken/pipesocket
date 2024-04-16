@@ -108,7 +108,7 @@ class ServerPipeSocket(PipeSocket):
         self._process.start()
 
     def start_server(self):
-        self.server = BetterServer(self.host_ip, self.host_port, self._send_q, self._receive_q, self.stop_event)
+        self.server = Server(self.host_ip, self.host_port, self._send_q, self._receive_q, self.stop_event)
         self.server.run()
         
 
@@ -119,39 +119,5 @@ class ClientPipeSocket(PipeSocket):
             self._process.start()   
     
     def start_client(self):
-        self.client = BetterClient(self.host_ip, self.host_port, self._send_q, self._receive_q, self.stop_event)
+        self.client = Client(self.host_ip, self.host_port, self._send_q, self._receive_q, self.stop_event)
         self.client.run()
-
-class BetterServer(Server):
-    def __init__(self, host_ip, host_port, send_q, receive_q, stop_event):
-        super().__init__(host_ip, host_port, stop_event)
-        self.send_q = send_q
-        self.receive_q = receive_q
-    
-    async def process_input(self, input):
-        self.receive_q.put(input)
-        return True
-
-    async def send(self):
-        try:
-            message = self.send_q.get_nowait()
-            return message
-        except queue.Empty:
-            await asyncio.sleep(0.1)
-
-class BetterClient(Client):
-    def __init__(self, host_ip, host_port, send_q, receive_q, stop_event):
-        super().__init__(host_ip, host_port, stop_event)
-        self.send_q = send_q
-        self.receive_q = receive_q
-
-    async def process_input(self, input):
-        self.receive_q.put(input)
-        return True
-
-    async def send(self):
-        try:
-            message = self.send_q.get_nowait()
-            return message
-        except queue.Empty:
-            await asyncio.sleep(0.1)

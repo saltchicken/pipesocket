@@ -5,8 +5,25 @@ import multiprocessing, queue, asyncio
 from loguru import logger
 
 
-class Client():
-    def __init__(self, host_ip, host_port, stop_event):
+class Base():
+    def __init__(self, send_q, receive_q):
+        self.send_q = send_q
+        self.receive_q = receive_q
+
+    async def process_input(self, input):
+        self.receive_q.put(input)
+        return True
+
+    async def send(self):
+        try:
+            message = self.send_q.get_nowait()
+            return message
+        except queue.Empty:
+            await asyncio.sleep(0.1)
+
+class Client(Base):
+    def __init__(self, host_ip, host_port, send_q, receive_q, stop_event):
+        super().__init__(send_q, receive_q)
         self.stop_event = stop_event
         if host_ip == 'localhost':
             self.uri = f"ws://localhost:{str(host_port)}"
@@ -37,25 +54,7 @@ class Client():
             self.stop_event.set()
         except asyncio.CancelledError:
             logger.debug("Routine cancelled")
-
-    async def process_input(self, input):
-        if input == 'quit':
-            logger.debug('Quit received')
-            return False
-        else:
-            logger.debug(f'Processing: {input}')
-            return True
         
-    async def send(self):
-        # await asyncio.sleep(3)
-        # return "test"
-    
-        loop = asyncio.get_event_loop()
-        output = await loop.run_in_executor(None, input, 'hello:')
-        return output
-
-
-
     async def main(self):
         async with websockets.connect(self.uri) as websocket:
             # send_task = asyncio.create_task(send_routine(websocket))
@@ -71,8 +70,9 @@ class Client():
         asyncio.run(self.main())
 
 
-class Server():
-    def __init__(self, host_ip, host_port, stop_event):
+class Server(Base):
+    def __init__(self, host_ip, host_port, send_q, receive_q, stop_event):
+        super().__init__(send_q, receive_q)
         self.stop_event = stop_event
         self.connected_clients = set()
         if host_ip == 'localhost':
@@ -107,25 +107,6 @@ class Server():
             for ws in self.connected_clients:
                 await ws.send(output)
         logger.debug('Broke out of send_routine')
-    
-    # def send(self):
-    #     return input('Enter something yea:? ')
-    
-    # def process_input(self, input):
-    #     time.sleep(3)
-    #     logger.debug(input)
-
-    async def send(self):
-        await asyncio.sleep(3)
-        return "test"
-    
-        # loop = asyncio.get_event_loop()
-        # output = await loop.run_in_executor(None, input, 'hello:')
-        # return output
-
-    async def process_input(self, input):
-        await asyncio.sleep(3)
-        logger.debug(input)
 
     async def main(self):
         async with websockets.serve(self.handle_client, self.host, self.port):
