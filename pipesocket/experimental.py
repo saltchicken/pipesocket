@@ -28,8 +28,6 @@ class SystemMessage(JSONMessage):
 class Message(JSONMessage):
     type: str = 'message'
 
-
-
 class PipeSocket():
     def __init__(self, host_ip = 'localhost', host_port = 8765):
         self._send_q = multiprocessing.Queue()
