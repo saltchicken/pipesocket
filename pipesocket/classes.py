@@ -6,9 +6,10 @@ from loguru import logger
 
 
 class Base():
-    def __init__(self, send_q, receive_q):
+    def __init__(self, send_q, receive_q, stop_event):
         self.send_q = send_q
         self.receive_q = receive_q
+        self.stop_event = stop_event
 
     async def process_input(self, input):
         self.receive_q.put(input)
@@ -23,7 +24,7 @@ class Base():
 
 class Client(Base):
     def __init__(self, host_ip, host_port, send_q, receive_q, stop_event):
-        super().__init__(send_q, receive_q)
+        super().__init__(send_q, receive_q, stop_event)
         self.stop_event = stop_event
         if host_ip == 'localhost':
             self.uri = f"ws://localhost:{str(host_port)}"
@@ -72,8 +73,7 @@ class Client(Base):
 
 class Server(Base):
     def __init__(self, host_ip, host_port, send_q, receive_q, stop_event):
-        super().__init__(send_q, receive_q)
-        self.stop_event = stop_event
+        super().__init__(send_q, receive_q, stop_event)
         self.connected_clients = set()
         if host_ip == 'localhost':
             self.host = 'localhost'
