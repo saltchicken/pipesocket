@@ -40,7 +40,6 @@ class Client(Base):
             except websockets.exceptions.ConnectionClosedOK:
                 logger.warning('Connection was already closed. Breaking')
                 break
-        logger.debug('Broke out of send_routine')
 
     async def receive_routine(self, ws):
         try:
@@ -50,7 +49,6 @@ class Client(Base):
                 result = await self.process_input(message)
                 if not result: break
         except ConnectionClosed:
-            # TODO: This needs to quit the client
             logger.debug("Server closed connection")
             self.stop_event.set()
         except asyncio.CancelledError:
@@ -58,14 +56,11 @@ class Client(Base):
         
     async def main(self):
         async with websockets.connect(self.uri) as websocket:
-            # send_task = asyncio.create_task(send_routine(websocket))
             task = asyncio.create_task(self.receive_routine(websocket))
             send_task = self.send_routine(websocket)
-            # task = receive_routine(websocket)
             await send_task
             task.cancel()
-            logger.debug("End of main reached")
-            # await asyncio.Future()
+            logger.debug("ClientPipeSocket main complete")
 
     def run(self):
         asyncio.run(self.main())
@@ -97,7 +92,6 @@ class Server(Base):
             self.connected_clients.remove(websocket)
 
     async def send_routine(self):
-        # TODO: How can I properly break this loop?
         while not self.stop_event.is_set():
             # TODO: Use next 2 lines for synchronous action.
             # loop = asyncio.get_event_loop()
@@ -110,8 +104,6 @@ class Server(Base):
 
     async def main(self):
         async with websockets.serve(self.handle_client, self.host, self.port):
-            # asyncio.create_task(send_routine())
-            # await asyncio.Future()
             task = self.send_routine()
             result = await task
             logger.debug("End of main reached")
