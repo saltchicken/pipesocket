@@ -27,9 +27,9 @@ server = ServerPipeSocket()
 To start a client, create an instance of `ClientPipeSocket`. You need to provide the host IP and port of the server.
 
 ```python
-from pipesocket import PipeSocket
+from pipesocket import ClientPipeSocket
 
-client = PipeSocket(host_ip='192.168.1.10', host_port=5555)
+client = ClientPipeSocket(host_ip='192.168.1.10', host_port=5555)
 ```
 
 ### Sending and Receiving Messages
