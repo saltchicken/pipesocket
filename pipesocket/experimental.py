@@ -94,8 +94,11 @@ class PipeSocket():
                 keepReceiving = False
         logger.debug('Receive stream ended')
 
-    def close_connection(self):
+    def send_close_connection_request(self):
         self.put_system_message('closeconnection')
+
+    def close(self):
+        self.stop_event.set()
 
 
 class ServerPipeSocket(PipeSocket):
