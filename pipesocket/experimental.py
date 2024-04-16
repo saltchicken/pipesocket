@@ -73,7 +73,10 @@ class PipeSocket():
         if message.type == 'message':
             return message.message
         elif message.type == 'system':
-            logger.debug(f"Received SystemMessage: {message.message}")
+            if message.message == 'closeconnection':
+                logger.debug('Received Close Connection request')
+            else:
+                logger.debug(f"Received SystemMessage: {message.message}")
             return None
         
     def put_system_message(self, message):

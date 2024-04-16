@@ -18,9 +18,9 @@ class Client():
             try:
                 output = await self.send()
                 if not output: continue
-                if output == 'quit':
-                    logger.debug('Received quit')
-                    break
+                # if output == 'quit':
+                #     logger.debug('Received quit')
+                #     break
                 # logger.debug(f"You entered: {user_input}")
                 await ws.send(output)
             except websockets.exceptions.ConnectionClosedOK:
@@ -105,10 +105,10 @@ class Server():
             # output = await loop.run_in_executor(None, self.send)
             output = await self.send()
             if not output: continue
-            if output == 'quit':
-                for ws in self.connected_clients:
-                    await ws.send('quit')
-                break
+            # if output == 'quit':
+            #     for ws in self.connected_clients:
+            #         await ws.send('quit')
+            #     break
             for ws in self.connected_clients:
                 await ws.send(output)
     
