@@ -25,7 +25,6 @@ class Base():
 class Client(Base):
     def __init__(self, host_ip, host_port, send_q, receive_q, stop_event):
         super().__init__(send_q, receive_q, stop_event)
-        self.stop_event = stop_event
         if host_ip == 'localhost':
             self.uri = f"ws://localhost:{str(host_port)}"
         else:

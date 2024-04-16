@@ -100,7 +100,6 @@ class PipeSocket():
     def close(self):
         self.stop_event.set()
 
-
 class ServerPipeSocket(PipeSocket):
     def __init__(self, host_ip = 'localhost', host_port = 8765):
         super().__init__(host_ip, host_port)
@@ -111,7 +110,6 @@ class ServerPipeSocket(PipeSocket):
         self.server = Server(self.host_ip, self.host_port, self._send_q, self._receive_q, self.stop_event)
         self.server.run()
         
-
 class ClientPipeSocket(PipeSocket):
     def __init__(self, host_ip = 'localhost', host_port = 8765):
         super().__init__(host_ip, host_port)
