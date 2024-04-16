@@ -92,21 +92,19 @@ class PipeSocket():
                 keepReceiving = False
         logger.debug('Receive stream ended')
 
+    def close_connection(self):
+        self.put_system_message('closeconnection')
 
-    
-    def start_server(self):
-        self.server = BetterServer(self.host_ip, self.host_port, self._send_q, self._receive_q)
-        self.server.run()
-
-    def start_client(self):
-        self.client = BetterClient(self.host_ip, self.host_port, self._send_q, self._receive_q)
-        self.client.run()
 
 class ServerPipeSocket(PipeSocket):
     def __init__(self, host_ip = 'localhost', host_port = 8765):
         super().__init__(host_ip, host_port)
         self._process = multiprocessing.Process(target=self.start_server)
         self._process.start()
+
+    def start_server(self):
+        self.server = BetterServer(self.host_ip, self.host_port, self._send_q, self._receive_q)
+        self.server.run()
         
 
 class ClientPipeSocket(PipeSocket):
@@ -114,6 +112,10 @@ class ClientPipeSocket(PipeSocket):
             super().__init__(host_ip, host_port)
             self._process = multiprocessing.Process(target=self.start_client)
             self._process.start()   
+    
+    def start_client(self):
+        self.client = BetterClient(self.host_ip, self.host_port, self._send_q, self._receive_q)
+        self.client.run()
 
 class BetterServer(Server):
     def __init__(self, host_ip, host_port, send_q, receive_q):
