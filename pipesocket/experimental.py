@@ -29,17 +29,14 @@ class SystemMessage(JSONMessage):
 class Message(JSONMessage):
     type: str = 'message'
 
+
+
 class PipeSocket():
-    def __init__(self, server_bool = False, host_ip = 'localhost', host_port = 8765):
+    def __init__(self, host_ip = 'localhost', host_port = 8765):
         self._send_q = multiprocessing.Queue()
         self._receive_q = multiprocessing.Queue()
         self.host_ip = host_ip
         self.host_port = host_port
-        if server_bool:
-            self._process = multiprocessing.Process(target=self.start_server)
-        else:
-            self._process = multiprocessing.Process(target=self.start_client)
-        self._process.start()
     
     def put(self, message):
         self._send_q.put(message)
@@ -105,6 +102,18 @@ class PipeSocket():
         self.client = BetterClient(self.host_ip, self.host_port, self._send_q, self._receive_q)
         self.client.run()
 
+class ServerPipeSocket(PipeSocket):
+    def __init__(self, host_ip = 'localhost', host_port = 8765):
+        super().__init__(host_ip, host_port)
+        self._process = multiprocessing.Process(target=self.start_server)
+        self._process.start()
+        
+
+class ClientPipeSocket(PipeSocket):
+    def __init__(self, host_ip = 'localhost', host_port = 8765):
+            super().__init__(host_ip, host_port)
+            self._process = multiprocessing.Process(target=self.start_client)
+            self._process.start()   
 
 class BetterServer(Server):
     def __init__(self, host_ip, host_port, send_q, receive_q):

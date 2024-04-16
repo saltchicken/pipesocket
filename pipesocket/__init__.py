@@ -1,1 +1,1 @@
-from .experimental import PipeSocket
+from .experimental import ServerPipeSocket, ClientPipeSocket
