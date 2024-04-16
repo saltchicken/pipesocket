@@ -63,9 +63,9 @@ server.receive_stream_message()
 ### Client Example
 
 ```python
-from pipesocket import PipeSocket
+from pipesocket import ClientPipeSocket
 
-client = PipeSocket(host_ip='192.168.1.10', host_port=5555)
+client = ClientPipeSocket(host_ip='192.168.1.10', host_port=5555)
 client.put_message("Hello from client!")
 client.put_system_message("System message from client!")
 ```
@@ -73,9 +73,9 @@ client.put_system_message("System message from client!")
 ### Server Example
 
 ```python
-from pipesocket import PipeSocket
+from pipesocket import ServerPipeSocket
 
-server = PipeSocket(server_bool=True)
+server = ServerPipeSocket()
 server.receive_stream_message()
 ```
 
