@@ -113,9 +113,9 @@ class ServerPipeSocket(PipeSocket):
 
 class ClientPipeSocket(PipeSocket):
     def __init__(self, host_ip = 'localhost', host_port = 8765):
-            super().__init__(host_ip, host_port)
-            self._process = multiprocessing.Process(target=self.start_client)
-            self._process.start()   
+        super().__init__(host_ip, host_port)
+        self._process = multiprocessing.Process(target=self.start_client)
+        self._process.start()   
     
     def start_client(self):
         self.client = Client(self.host_ip, self.host_port, self._send_q, self._receive_q, self.stop_event)
