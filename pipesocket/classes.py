@@ -1,7 +1,7 @@
 import asyncio
 import websockets
 from websockets.exceptions import ConnectionClosed
-import multiprocessing, queue, asyncio
+import queue, asyncio
 from loguru import logger
 
 
