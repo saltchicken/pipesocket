@@ -37,6 +37,7 @@ class PipeSocket():
         self._receive_q = multiprocessing.Queue()
         self.host_ip = host_ip
         self.host_port = host_port
+        self.stop_event = multiprocessing.Event()
     
     def put(self, message):
         self._send_q.put(message)
@@ -75,6 +76,7 @@ class PipeSocket():
         elif message.type == 'system':
             if message.message == 'closeconnection':
                 logger.debug('Received Close Connection request')
+                self.stop_event.set()
             else:
                 logger.debug(f"Received SystemMessage: {message.message}")
             return None
@@ -106,7 +108,7 @@ class ServerPipeSocket(PipeSocket):
         self._process.start()
 
     def start_server(self):
-        self.server = BetterServer(self.host_ip, self.host_port, self._send_q, self._receive_q)
+        self.server = BetterServer(self.host_ip, self.host_port, self._send_q, self._receive_q, self.stop_event)
         self.server.run()
         
 
@@ -117,12 +119,12 @@ class ClientPipeSocket(PipeSocket):
             self._process.start()   
     
     def start_client(self):
-        self.client = BetterClient(self.host_ip, self.host_port, self._send_q, self._receive_q)
+        self.client = BetterClient(self.host_ip, self.host_port, self._send_q, self._receive_q, self.stop_event)
         self.client.run()
 
 class BetterServer(Server):
-    def __init__(self, host_ip, host_port, send_q, receive_q):
-        super().__init__(host_ip, host_port)
+    def __init__(self, host_ip, host_port, send_q, receive_q, stop_event):
+        super().__init__(host_ip, host_port, stop_event)
         self.send_q = send_q
         self.receive_q = receive_q
     
@@ -138,8 +140,8 @@ class BetterServer(Server):
             await asyncio.sleep(0.1)
 
 class BetterClient(Client):
-    def __init__(self, host_ip, host_port, send_q, receive_q):
-        super().__init__(host_ip, host_port)
+    def __init__(self, host_ip, host_port, send_q, receive_q, stop_event):
+        super().__init__(host_ip, host_port, stop_event)
         self.send_q = send_q
         self.receive_q = receive_q
 

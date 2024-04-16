@@ -6,26 +6,23 @@ from loguru import logger
 
 
 class Client():
-    def __init__(self, host_ip, host_port):
+    def __init__(self, host_ip, host_port, stop_event):
+        self.stop_event = stop_event
         if host_ip == 'localhost':
             self.uri = f"ws://localhost:{str(host_port)}"
         else:
             self.uri = f"ws://{host_ip}:{str(host_port)}"
 
     async def send_routine(self, ws):
-        # TODO: How can I properly break this loop?
-        while True:
+        while not self.stop_event.is_set():
             try:
                 output = await self.send()
                 if not output: continue
-                # if output == 'quit':
-                #     logger.debug('Received quit')
-                #     break
-                # logger.debug(f"You entered: {user_input}")
                 await ws.send(output)
             except websockets.exceptions.ConnectionClosedOK:
                 logger.warning('Connection was already closed. Breaking')
                 break
+        logger.debug('Broke out of send_routine')
 
     async def receive_routine(self, ws):
         try:
@@ -37,6 +34,7 @@ class Client():
         except ConnectionClosed:
             # TODO: This needs to quit the client
             logger.debug("Server closed connection")
+            self.stop_event.set()
         except asyncio.CancelledError:
             logger.debug("Routine cancelled")
 
@@ -74,7 +72,8 @@ class Client():
 
 
 class Server():
-    def __init__(self, host_ip, host_port):
+    def __init__(self, host_ip, host_port, stop_event):
+        self.stop_event = stop_event
         self.connected_clients = set()
         if host_ip == 'localhost':
             self.host = 'localhost'
@@ -99,18 +98,15 @@ class Server():
 
     async def send_routine(self):
         # TODO: How can I properly break this loop?
-        while True:
+        while not self.stop_event.is_set():
             # TODO: Use next 2 lines for synchronous action.
             # loop = asyncio.get_event_loop()
             # output = await loop.run_in_executor(None, self.send)
             output = await self.send()
             if not output: continue
-            # if output == 'quit':
-            #     for ws in self.connected_clients:
-            #         await ws.send('quit')
-            #     break
             for ws in self.connected_clients:
                 await ws.send(output)
+        logger.debug('Broke out of send_routine')
     
     # def send(self):
     #     return input('Enter something yea:? ')
