@@ -14,17 +14,17 @@ pip install git+https://github.com/saltchicken/pipesocket
 
 ### Server
 
-To start a server, you can create an instance of `PipeSocket` with `server_bool` set to `True`. You can specify the host IP and port if needed. By default, the server listens on `localhost` at port `8765`.
+To start a server, you can create an instance of `ServerPipeSocket`. You can specify the host IP and port if needed. By default, the server listens on `localhost` at port `8765`.
 
 ```python
-from pipesocket import PipeSocket
+from pipesocket import ServerPipeSocket
 
-server = PipeSocket(server_bool=True)
+server = ServerPipeSocket()
 ```
 
 ### Client
 
-To start a client, create an instance of `PipeSocket` with `server_bool` set to `False`. You need to provide the host IP and port of the server.
+To start a client, create an instance of `ClientPipeSocket`. You need to provide the host IP and port of the server.
 
 ```python
 from pipesocket import PipeSocket
